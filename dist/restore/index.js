@@ -59190,7 +59190,7 @@ async function installFirebuildLinux() {
     if (acceptLicense) {
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
     }
-    await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y software-properties-common'");
+    await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends software-properties-common gpg-agent'");
     await execBashSudo("add-apt-repository -y ppa:firebuild/stable");
     await execBashSudo("apt-get install -y firebuild");
 }
