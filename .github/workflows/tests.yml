@@ -37,7 +37,6 @@ jobs:
         with:
           max-size: 0.01
           key: parent
-          accept-firebuild-license: true
       - name: Test firebuild 1/2
         run: |
           [[ ${{ steps.firebuild.outputs.test-cache-hit }} = true ]] || [[ ${{ steps.firebuild.outputs.test-cache-hit }} = false ]]
@@ -73,7 +72,6 @@ jobs:
         id: output
         with:
           key: parent
-          accept-firebuild-license: true
       - name: Test output true
         run: |
           [[ ${{ steps.output.outputs.test-cache-hit }} = true ]]
@@ -95,7 +93,6 @@ jobs:
         id: output
         with:
           key: random-key-${{ env.RAND }}
-          accept-firebuild-license: true
       - name: Test output false
         run: |
           [[ ${{ steps.output.outputs.test-cache-hit }} = false ]]
@@ -119,7 +116,6 @@ jobs:
           key: child-${{ env.RAND }}
           restore-keys: |
             parent
-          accept-firebuild-license: true
       - name: Test restore-keys
         run: |
           [[ ${{ steps.restore-keys.outputs.test-cache-hit }} = true ]]
@@ -133,8 +129,6 @@ jobs:
       - run: apt update
       - name: Run firebuild-action
         uses: ./
-        with:
-          accept-firebuild-license: true
 
   test_option_save:
     # Test that the 'save' option is available.
@@ -148,4 +142,3 @@ jobs:
         uses: ./
         with:
           save: ${{ matrix.save }}
-          accept-firebuild-license: true

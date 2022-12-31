@@ -47,8 +47,11 @@ async function configure() : Promise<void> {
 }
 
 async function installFirebuildLinux() : Promise<void> {
-  const acceptLicense = core.getBooleanInput('accept-firebuild-license');
-  if (acceptLicense) {
+  await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends curl ca-certificates'");
+  core.info("Verifying the Firebuild license.");
+  core.info("If the next step fails you need to install the Firebuild App at https://github.com/apps/firebuild .");
+  const acceptLicense = await exec.exec('curl -f -s https://firebuild.com/firebuild-gh-app/query?user=' + process.env.GITHUB_REPOSITORY_OWNER);
+  if (acceptLicense === 0) {
     await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
   }
   await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends software-properties-common gpg-agent'");
