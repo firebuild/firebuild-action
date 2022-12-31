@@ -1,4 +1,4 @@
-name: "Firebuild for gh actions"
+name: "Firebuild for GitHub Actions"
 description: "A GitHub Action that speeds up (build) commands using Firebuild."
 author: "Balint Reczey <balint@balintreczey.hu>"
 # original author: "Hendrik Muhs<hendrik.muhs@gmail.com>"

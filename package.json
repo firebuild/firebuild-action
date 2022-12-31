@@ -1,7 +1,7 @@
 {
   "name": "firebuild-action",
   "version": "1.0.0",
-  "description": "github action to speedup (build) commands using firebuild",
+  "description": "GitHub Action to speed up (build) commands using firebuild",
   "main": "dist/restore/index.js",
   "scripts": {
     "prepare": "ncc build --target es2020 -o dist/restore src/restore.ts && ncc build --target es2020 -o dist/save src/save.ts"
