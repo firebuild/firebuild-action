@@ -59152,6 +59152,9 @@ var cache = __nccwpck_require__(7799);
 
 const SELF_CI = external_process_namespaceObject.env.FIREBUILD_ACTION_CI === "true";
 // based on https://cristianadam.eu/20200113/speeding-up-c-plus-plus-github-actions-using-ccache/
+function getExecBashOutput(cmd) {
+    return exec.getExecOutput("bash", ["-c", cmd], { silent: true });
+}
 async function restore() {
     const inputs = {
         primaryKey: core.getInput("key"),
@@ -59188,8 +59191,9 @@ async function configure() {
 async function installFirebuildLinux() {
     await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends curl ca-certificates'");
     core.info("Verifying the Firebuild license.");
+    const actorSha256 = (await getExecBashOutput(`echo ${external_process_namespaceObject.env.GITHUB_ACTOR} | sha256sum | cut -f1 -d" "`)).stdout;
     try {
-        await exec.exec('curl -f -s https://firebuild.com/firebuild-gh-app/query?user=' + external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER);
+        await exec.exec(`curl -f -s https://firebuild.com/firebuild-gh-app/query?user=${external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`);
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
         await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends software-properties-common gpg-agent'");
         await execBashSudo("add-apt-repository -y ppa:firebuild/stable");
