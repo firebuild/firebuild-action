@@ -59191,7 +59191,14 @@ async function configure() {
 async function installFirebuildLinux() {
     await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends curl ca-certificates'");
     core.info("Verifying the Firebuild license.");
-    const actorSha256 = (await getExecBashOutput(`echo ${external_process_namespaceObject.env.GITHUB_ACTOR} | sha256sum | cut -f1 -d" "`)).stdout;
+    // Does that work reliably with cloud action runners and in enterprise deployments?
+    let isPublicRepo = false;
+    try {
+        isPublicRepo = ((await exec.exec(`curl -f -s -o /dev/null https://github.com/${external_process_namespaceObject.env.GITHUB_REPOSITORY}`)) === 0);
+    }
+    catch (error) {
+    }
+    const actorSha256 = isPublicRepo ? "" : (await getExecBashOutput(`echo ${external_process_namespaceObject.env.GITHUB_ACTOR} | sha256sum | cut -f1 -d" "`)).stdout;
     try {
         await exec.exec(`curl -f -s https://firebuild.com/firebuild-gh-app/query?user=${external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`);
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
