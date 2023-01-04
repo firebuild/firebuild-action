@@ -82,7 +82,7 @@ async function configure() : Promise<void> {
 }
 
 async function installFirebuildLinux() : Promise<void> {
-  await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends curl ca-certificates'");
+  await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || $(which eatmydata) apt-get install -y --no-install-recommends curl ca-certificates'");
   core.info("Verifying the Firebuild license.");
   // Does that work reliably with cloud action runners and in enterprise deployments?
   let isPublicRepo = false;
@@ -95,7 +95,7 @@ async function installFirebuildLinux() : Promise<void> {
     await exec.exec(`curl -f -s https://firebuild.com/firebuild-gh-app/query?user=${process.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`);
     await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
     await execBashSudo(`sh -c 'add-apt-repository -y ppa:firebuild/stable || (printf \"\\n${ppaKey}\" > /etc/apt/trusted.gpg.d/firebuild-ppa.asc && printf \"deb https://ppa.launchpadcontent.net/firebuild/stable/ubuntu $(. /etc/lsb-release ; echo $DISTRIB_CODENAME) main universe\" > /etc/apt/sources.list.d/firebuild-stable-ppa.list && apt-get -qq update)'`);
-    await execBashSudo("apt-get install -y firebuild");
+    await execBashSudo("$(which eatmydata) apt-get install -y firebuild");
   } catch (error) {
     core.info("Firebuild's license is not accepted because the Firebuild App (https://github.com/apps/firebuild) is not installed.");
     core.info("Please install the Firebuild App to install Firebuild in GitHub Actions.");
