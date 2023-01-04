@@ -59188,14 +59188,17 @@ async function configure() {
 async function installFirebuildLinux() {
     await execBashSudo("sh -c 'type curl 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends curl ca-certificates'");
     core.info("Verifying the Firebuild license.");
-    core.info("If the next step fails you need to install the Firebuild App at https://github.com/apps/firebuild .");
-    const acceptLicense = await exec.exec('curl -f -s https://firebuild.com/firebuild-gh-app/query?user=' + external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER);
-    if (acceptLicense === 0) {
+    try {
+        await exec.exec('curl -f -s https://firebuild.com/firebuild-gh-app/query?user=' + external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER);
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
+        await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends software-properties-common gpg-agent'");
+        await execBashSudo("add-apt-repository -y ppa:firebuild/stable");
+        await execBashSudo("apt-get install -y firebuild");
     }
-    await execBashSudo("sh -c 'type add-apt-repository 2> /dev/null > /dev/null || apt-get install -y --no-install-recommends software-properties-common gpg-agent'");
-    await execBashSudo("add-apt-repository -y ppa:firebuild/stable");
-    await execBashSudo("apt-get install -y firebuild");
+    catch (error) {
+        core.info("Firebuild's license is not accepted because the Firebuild App (https://github.com/apps/firebuild) is not installed.");
+        core.info("Please install the Firebuild App to install Firebuild in GitHub Actions.");
+    }
 }
 async function execBash(cmd) {
     await exec.exec("bash", ["-xc", cmd]);
