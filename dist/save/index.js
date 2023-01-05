@@ -59152,7 +59152,7 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 async function firebuildIsEmpty() {
-    return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.+\b 0\.00 kB/);
+    return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.*[^0-9]0\.00 kB/);
 }
 async function getVerbosity(verbositySetting) {
     switch (verbositySetting) {

@@ -3,7 +3,7 @@ import * as cache from "@actions/cache";
 import * as exec from "@actions/exec";
 
 async function firebuildIsEmpty() : Promise<boolean> {
-  return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.+\b 0\.00 kB/);
+  return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.*[^0-9]0\.00 kB/);
 }
 
 async function getVerbosity(verbositySetting : string) : Promise<string> {
