@@ -94,7 +94,7 @@ async function installFirebuildLinux() : Promise<void> {
   try {
     await exec.exec(`curl -f -s https://firebuild.com/firebuild-gh-app/query?user=${process.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`);
     await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
-    await execBashSudo(`sh -c 'add-apt-repository -y ppa:firebuild/stable || (printf \"\\n${ppaKey}\" > /etc/apt/trusted.gpg.d/firebuild-ppa.asc && printf \"deb https://ppa.launchpadcontent.net/firebuild/stable/ubuntu $(. /etc/lsb-release ; echo $DISTRIB_CODENAME) main universe\" > /etc/apt/sources.list.d/firebuild-stable-ppa.list && apt-get -qq update)'`);
+    await execBashSudo(`sh -c 'add-apt-repository -y ppa:firebuild/stable || (printf \"\\n${ppaKey}\" > /etc/apt/trusted.gpg.d/firebuild-ppa.asc && printf \"deb http://ppa.launchpadcontent.net/firebuild/stable/ubuntu $(. /etc/lsb-release ; echo $DISTRIB_CODENAME) main universe\" > /etc/apt/sources.list.d/firebuild-stable-ppa.list && apt-get -qq update)'`);
     await execBashSudo("$(which eatmydata) apt-get install -y firebuild");
   } catch (error) {
     core.info("Firebuild's license is not accepted because the Firebuild App (https://github.com/apps/firebuild) is not installed.");
