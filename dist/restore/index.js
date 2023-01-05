@@ -66261,7 +66261,9 @@ async function configure() {
     const ghWorkSpace = external_process_namespaceObject.env.GITHUB_WORKSPACE || "unreachable, make ncc happy";
     const maxSize = core.getInput('max-size');
     await execBashSudo(`sed -i 's/^max_cache_size = .*/max_cache_size = ${maxSize}/' /etc/firebuild.conf`);
+    // Set cache location both for the current process (to clear stats) and for the future action steps
     external_process_namespaceObject.env.FIREBUILD_CACHE_DIR = `${ghWorkSpace}/.cache/firebuild`;
+    await execBash(`sh -c 'echo FIREBUILD_CACHE_DIR=${ghWorkSpace}/.cache/firebuild >> ${external_process_namespaceObject.env.GITHUB_ENV}'`);
     core.info("Firebuild config:");
     await execBash("cat /etc/firebuild.conf");
 }

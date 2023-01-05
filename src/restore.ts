@@ -77,7 +77,9 @@ async function configure() : Promise<void> {
   const maxSize = core.getInput('max-size');
   
   await execBashSudo(`sed -i 's/^max_cache_size = .*/max_cache_size = ${maxSize}/' /etc/firebuild.conf`);
+  // Set cache location both for the current process (to clear stats) and for the future action steps
   process.env["FIREBUILD_CACHE_DIR"] = `${ghWorkSpace}/.cache/firebuild`
+  await execBash(`sh -c 'echo FIREBUILD_CACHE_DIR=${ghWorkSpace}/.cache/firebuild >> ${process.env.GITHUB_ENV}'`);
   core.info("Firebuild config:");
   await execBash("cat /etc/firebuild.conf");
 }
