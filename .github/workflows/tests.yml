@@ -18,7 +18,7 @@ jobs:
     # Run npm build and check that the dist/ folder is up to date.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         run: |
           npm install
@@ -32,7 +32,7 @@ jobs:
         os: [ubuntu-latest, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run firebuild-action
         id: firebuild
         uses: ./
@@ -68,7 +68,7 @@ jobs:
         os: [ubuntu-latest, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run firebuild action
         uses: ./
         id: output
@@ -87,7 +87,7 @@ jobs:
         os: [ubuntu-latest, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           echo "RAND=$RANDOM" >> $GITHUB_ENV
       - name: Run firebuild action
@@ -108,7 +108,7 @@ jobs:
         os: [ubuntu-latest, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           echo "RAND=$RANDOM" >> $GITHUB_ENV
       - name: Run firebuild action
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ubuntu:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: apt update
       - name: Run firebuild-action
         uses: ./
@@ -139,7 +139,7 @@ jobs:
       matrix:
         save: [true, false]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run firebuild-action
         uses: ./
         with:
