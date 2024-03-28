@@ -16,20 +16,20 @@
     "cache"
   ],
   "author": "Balint Reczey",
-  "contributors" : [
-      "Hendrik Muhs"
+  "contributors": [
+    "Hendrik Muhs"
   ],
   "license": "MIT",
   "dependencies": {
-    "@actions/cache": "^3.1.2",
-    "@actions/core": "^1.10.0",
+    "@actions/cache": "^3.2.4",
+    "@actions/core": "^1.10.1",
     "@actions/exec": "^1.1.1",
-    "@actions/io": "^1.1.2",
-    "node-fetch": "^3.3.0"
+    "@actions/io": "^1.1.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.36.0",
-    "typescript": "^4.9.4"
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^4.9.5"
   },
   "bugs": {
     "url": "https://github.com/firebuild/firebuild-action/issues"
