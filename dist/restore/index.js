@@ -91930,6 +91930,28 @@ const ppaKey = "" +
     "6tC+\\n" +
     "=4Qt3\\n" +
     "-----END PGP PUBLIC KEY BLOCK-----\\n";
+async function fetchWithRetry(url, init, retries = 20, timeoutMs = 3000, backoffMs = 3000) {
+    let attempt = 0;
+    let lastError;
+    while (attempt <= retries) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const res = await fetch(url, { ...(init || {}), signal: controller.signal });
+            clearTimeout(timer);
+            return res;
+        }
+        catch (err) {
+            lastError = err;
+            clearTimeout(timer);
+            if (attempt === retries)
+                break;
+            await new Promise((r) => setTimeout(r, backoffMs));
+            attempt++;
+        }
+    }
+    throw lastError;
+}
 function getExecBashOutput(cmd) {
     return exec.getExecOutput("bash", ["-c", cmd], { silent: true });
 }
@@ -91974,7 +91996,15 @@ async function installFirebuildLinux() {
     let isPublicRepo = false;
     isPublicRepo = (await fetch(`https://github.com/${external_process_namespaceObject.env.GITHUB_REPOSITORY}`)).ok;
     const actorSha256 = isPublicRepo ? "" : (await getExecBashOutput(`echo ${external_process_namespaceObject.env.GITHUB_ACTOR} | sha256sum | cut -f1 -d" "`)).stdout;
-    const acceptLicense = (await fetch(`https://firebuild.com/firebuild-gh-app/query?user=${external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`)).ok;
+    let acceptLicense = false;
+    try {
+        const resp = await fetchWithRetry(`https://firebuild.com/firebuild-gh-app/query?user=${external_process_namespaceObject.env.GITHUB_REPOSITORY_OWNER}&actor_sha256=${actorSha256}`, undefined);
+        acceptLicense = resp.ok;
+    }
+    catch (err) {
+        core.info(`License check timed out after retries: ${err}`);
+        acceptLicense = false;
+    }
     if (acceptLicense) {
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
         await execBashSudo(`sh -c 'add-apt-repository -y ppa:firebuild/stable || (printf \"\\n${ppaKey}\" > /etc/apt/trusted.gpg.d/firebuild-ppa.asc && printf \"deb http://ppa.launchpadcontent.net/firebuild/stable/ubuntu $(. /etc/lsb-release ; echo $DISTRIB_CODENAME) main universe\" > /etc/apt/sources.list.d/firebuild-stable-ppa.list && apt-get -qq update)'`);
