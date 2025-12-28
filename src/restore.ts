@@ -39,7 +39,7 @@ const ppaKey = "" +
 "=4Qt3\\n" +
 "-----END PGP PUBLIC KEY BLOCK-----\\n";
 
-async function fetchWithRetry(url: string, init?: any, retries = 60, timeoutMs = 2000, backoffMs = 1500) {
+async function fetchWithRetry(url: string, init?: any, retries = 4, timeoutMs = 2000, backoffMs = 3000) {
   let attempt = 0;
   let lastError: unknown;
   while (attempt <= retries) {
