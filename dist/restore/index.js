@@ -94560,7 +94560,7 @@ const ppaKey = "" +
     "6tC+\\n" +
     "=4Qt3\\n" +
     "-----END PGP PUBLIC KEY BLOCK-----\\n";
-async function fetchWithRetry(url, init, retries = 20, timeoutMs = 3000, backoffMs = 3000) {
+async function fetchWithRetry(url, init, retries = 60, timeoutMs = 2000, backoffMs = 1500) {
     let attempt = 0;
     let lastError;
     while (attempt <= retries) {
