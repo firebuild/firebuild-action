@@ -1,6 +1,18 @@
 import * as core from "@actions/core";
 import * as cache from "@actions/cache";
 import * as exec from "@actions/exec";
+import * as fs from "fs";
+
+async function addStatsToSummary(stats: string) : Promise<void> {
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryFile) {
+    core.warning("GITHUB_STEP_SUMMARY is not set, unable to add stats to Job Summary.");
+    return;
+  }
+
+  const summary = `## Firebuild Cache Hit Statistics\n\`\`\`\n${stats}\n\`\`\`\n`;
+  fs.appendFileSync(summaryFile, summary);
+}
 
 async function firebuildIsEmpty() : Promise<boolean> {
   return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.*[^0-9]0\.00 kB/);
@@ -44,8 +56,15 @@ async function run() : Promise<void> {
 
     core.startGroup("firebuild stats");
     const verbosity = firebuildKnowsVerbosityFlag ? await getVerbosity(core.getInput("verbose")) : '';
-    await exec.exec(`firebuild -s${verbosity}`);
+    const statsOutput = await getExecBashOutput(`firebuild -s${verbosity}`);
+    console.log(statsOutput.stdout);
     core.endGroup();
+
+    // Add stats to Job Summary if enabled
+    const addSummary = core.getInput("summary").toLowerCase() === 'true';
+    if (addSummary && statsOutput.stdout) {
+      await addStatsToSummary(statsOutput.stdout);
+    }
 
     if (await firebuildIsEmpty()) {
       core.info("Not saving cache because no objects are cached.");

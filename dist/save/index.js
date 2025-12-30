@@ -86975,9 +86975,21 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony import */ var _actions_cache__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_cache__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(95236);
 /* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(79896);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_3__);
 
 
 
+
+async function addStatsToSummary(stats) {
+    const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+    if (!summaryFile) {
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning("GITHUB_STEP_SUMMARY is not set, unable to add stats to Job Summary.");
+        return;
+    }
+    const summary = `## Firebuild Cache Hit Statistics\n\`\`\`\n${stats}\n\`\`\`\n`;
+    fs__WEBPACK_IMPORTED_MODULE_3__.appendFileSync(summaryFile, summary);
+}
 async function firebuildIsEmpty() {
     return !!(await getExecBashOutput("firebuild -s")).stdout.match(/Cache size.*[^0-9]0\.00 kB/);
 }
@@ -87012,8 +87024,14 @@ async function run() {
         const firebuildKnowsVerbosityFlag = !!(await getExecBashOutput("firebuild --help")).stdout.includes("--verbose");
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.startGroup("firebuild stats");
         const verbosity = firebuildKnowsVerbosityFlag ? await getVerbosity(_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("verbose")) : '';
-        await _actions_exec__WEBPACK_IMPORTED_MODULE_2__.exec(`firebuild -s${verbosity}`);
+        const statsOutput = await getExecBashOutput(`firebuild -s${verbosity}`);
+        console.log(statsOutput.stdout);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.endGroup();
+        // Add stats to Job Summary if enabled
+        const addSummary = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("summary").toLowerCase() === 'true';
+        if (addSummary && statsOutput.stdout) {
+            await addStatsToSummary(statsOutput.stdout);
+        }
         if (await firebuildIsEmpty()) {
             _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Not saving cache because no objects are cached.");
         }
