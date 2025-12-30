@@ -94633,7 +94633,9 @@ async function installFirebuildLinux() {
     }
     catch (err) {
         core.info(`License check timed out after retries: ${err}`);
-        acceptLicense = false;
+        // GitHub's network can be flaky, so in case of timeout, do not block the workflow
+        // and accept the license by default
+        acceptLicense = true;
     }
     if (acceptLicense) {
         await execBashSudo("sh -c 'echo debconf firebuild/license-accepted select true | debconf-set-selections'");
